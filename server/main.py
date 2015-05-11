@@ -28,6 +28,21 @@ class TasksHandler(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(task.to_dict()))
 
+class TaskHandler(webapp2.RequestHandler):
+    
+    def put(self, key):
+        data = json.loads(self.request.body)
+        task = ndb.Key(urlsafe=key).get()
+        task.done = data['done']
+        task.put()
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps(task.to_dict()))
+    
+    def delete(self, key):
+        task = ndb.Key(urlsafe=key)
+        task.delete()
+
 app = webapp2.WSGIApplication([
     webapp2.Route(r'/task', handler=TasksHandler),
+    webapp2.Route(r'/task/<key>', handler=TaskHandler),
 ], debug=True)
